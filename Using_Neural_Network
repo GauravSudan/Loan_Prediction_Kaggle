@@ -1,0 +1,49 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+data = pd.read_csv('CORRECTED_FILE.csv')
+data.dtypes
+
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+labelencoder_X = LabelEncoder()
+
+var_mod = ['Loan_ID','Gender','Married','Dependents','Education','Self_Employed','Property_Area','Loan_Status','LoanAmount','CoapplicantIncome','Loan_Amount_Term']
+for i in var_mod:
+    data[i]=labelencoder_X.fit_transform(data[i])
+
+data.dtypes
+
+X = data.iloc[:, 1:12].values
+Y = data.iloc[:, 12].values
+Y1=np.array(Y)
+Y1=np.reshape(Y1,(len(Y1),1))
+
+
+# Feature Scaling (VALUES B/W -1 to 1)
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+X = sc.fit_transform(X)
+##################################################################################################
+# Part 2 - Now let's make the ANN!
+
+# Importing the Keras libraries and packages
+#import tensorflow
+import keras
+from keras.models import Sequential                    #Used to initialise the neural n/w
+from keras.layers import Dense   #Step 1 of Image        #Used to make layers of ANN
+
+# Initialising the ANN
+classifier = Sequential()    #Sequential is a class that is used to add different layers in our ANN model
+# Adding the input layer and the first hidden layer
+classifier.add(Dense(output_dim = 6, init = 'uniform', activation = 'relu', input_dim = 11))
+# Adding the second hidden layer
+classifier.add(Dense(output_dim = 6, init = 'uniform', activation = 'relu'))
+# Adding the output layer
+classifier.add(Dense(output_dim = 1, init = 'uniform', activation = 'sigmoid'))
+
+# Compiling the ANN
+classifier.compile(optimizer = 'adam', loss = 'mean_squared_logarithmic_error', metrics = ['accuracy'])
+# Fitting the ANN to the Training set
+classifier.fit(X, Y1,validation_split=0.2, batch_size = 10, nb_epoch = 1000)
